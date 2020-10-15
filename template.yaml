@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  dynamisk53
+
+  SAM Template for dynamisk53
+
+Parameters:
+  Stage:
+    Type: String
+    Default: production
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ApiDeployment:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+  NicUpdateFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: dynamisk53/
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Events:
+        NicUpdate:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /nic/update
+            Method: get
+            RestApiId: !Ref ApiDeployment
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  ApiDeployment:
+    Description: "API Gateway endpoint URL for production stage for NicUpdate function"
+    Value: !Sub "https://${ApiDeployment}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/nic/update"
+  NicUpdateFunction:
+    Description: "NicUpdate Lambda Function ARN"
+    Value: !GetAtt NicUpdateFunction.Arn
+  NicUpdateFunctionIamRole:
+    Description: "Implicit IAM Role created for NicUpdate function"
+    Value: !GetAtt NicUpdateFunctionRole.Arn
