@@ -22,7 +22,7 @@ jobs:
         pip install -r dynamisk53/requirements.txt
     - name: Lint with flake8
       run: |
-        flake8 --max-line-length=120 --show-source --statistics dynamisk53/*.py tests/*.py
+        flake8 --max-line-length=120 --show-source --statistics dynamisk53/ tests/
     - name: Test with pytest and coverage
       run: |
         coverage run -m pytest -v
